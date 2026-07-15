@@ -14,7 +14,7 @@ dependencies = [
     "rocrate (>=0.15.0, <2.0.0)",
     "spdx-license-list (>=3.28.0, <4.0.0)",
     "roc-validator",
-    "markdown-it-py (>=2.2,<3.0.0)"
+    "markdown-it-py (>=2.2,<5.0.0)"
 ]
 
 [build-system]
