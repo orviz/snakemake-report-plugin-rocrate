@@ -115,22 +115,32 @@ class Reporter(ReporterBase):  # type: ignore[misc]
     external_directory_name = "_EXTERNAL"
 
     def render(self) -> None:
-        if self.settings.filename:
-            validate_filename(str(self.settings.filename))
+        import traceback
 
-        provenance_builder = ProvenanceBuilder(
-            jobs=self.jobs,
-            dag=self.dag,
-            external_directory_name=self.external_directory_name,
-        )
+        try:
+            if self.settings.filename:
+                validate_filename(str(self.settings.filename))
 
-        with provenance_builder.workspace():
-            provenance = provenance_builder.build()
-            crate_builder = ProvenanceRunCrateBuilder(
+            provenance_builder = ProvenanceBuilder(
+                jobs=self.jobs,
                 dag=self.dag,
-                settings=self.settings,
+                external_directory_name=self.external_directory_name,
             )
-            crate_path = crate_builder.write(provenance)
-            validate_rocrate(
-                crate_path, profile_identifier=PROVENANCE_RUN_CRATE_PROFILE
-            )
+
+            with provenance_builder.workspace():
+                provenance = provenance_builder.build()
+                crate_builder = ProvenanceRunCrateBuilder(
+                    dag=self.dag,
+                    settings=self.settings,
+                )
+                crate_path = crate_builder.write(provenance)
+                validate_rocrate(
+                    crate_path, profile_identifier=PROVENANCE_RUN_CRATE_PROFILE
+                )
+                
+        except Exception as e:
+            print("\n" + "="*60)
+            print("💥 ERROR INTERNO DETECTADO EN EL PLUGIN DE RO-CRATE:")
+            traceback.print_exc()
+            print("="*60 + "\n")
+            raise Exception(f"El plugin de RO-Crate falló: {e}")
